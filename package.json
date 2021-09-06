@@ -1,0 +1,27 @@
+{
+  "name": "iotpuc",
+  "version": "1.0.0",
+  "description": "projeto iotpucminas",
+  "main": "sensor01.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mborcari/iotpuc.git"
+  },
+  "author": "Matheus Santana e Yago Maia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mborcari/iotpuc/issues"
+  },
+  "homepage": "https://github.com/mborcari/iotpuc#readme",
+  "dependencies": {
+    "azure-iot-device": "^1.17.0",
+    "azure-iot-device-mqtt": "^1.15.0",
+    "azure-iot-provisioning-device-mqtt": "^1.7.4",
+    "azure-iot-security-symmetric-key": "^1.7.4",
+    "azure-maps-rest": "^2.0.5",
+    "chalk": "^4.1.2"
+  }
+}
