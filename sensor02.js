@@ -11,9 +11,9 @@ var ProvisioningDeviceClient = require('azure-iot-provisioning-device').Provisio
 var provisioningHost = 'global.azure-devices-provisioning.net';
 
 // Enter your Azure IoT keys
-var idScope = '0ne00398944';
-var registrationId = 'sensorbh02';
-var symmetricKey = 'Od/5zP8qsTnME6z+WdnLiUXM0wM6gp5FWqecJOphpqA=';
+var idScope = '0ne003A1238';
+var registrationId = 'sensor02';
+var symmetricKey = '0PSRImHIN+YfqSmVJZ2beC+w39eNrG9j2u424HzPRwY=';
 
 var provisioningSecurityClient = new SymmetricKeySecurityClient(registrationId, symmetricKey);
 var provisioningClient = ProvisioningDeviceClient.create(provisioningHost, idScope, new ProvisioningTransport(), provisioningSecurityClient);
@@ -27,40 +27,36 @@ function redMessage(text) {
     console.log(chalk.red(text) + "\n");
 }
 
-// CONSTANTES
-// Sensor  globals initialized to the starting state
-
-
-var nomeSensor = "BH - Barreiro - 02";
-var estadoDispositivoEnum = Object.freeze({ "Desligado": "desligado", "Ligado": "ligado", "Com falha": "comfalha" });
-var alagamentoEnum = Object.freeze({ "Seco": "seco", "Nivel1": "nivel1", "Nivel2": "nivel2" });
-const thresholdSeco = "seco"; 
-const thresholdAlagadoNivel1 = "nivel1"; 
-const thresholdAlagadoNivel2 = "nivel2";
-var umidade = 0 // umidade inicial de medição
-var baseLat = -19.970337248327265; // Base position latitude.
-var baseLon = -44.016442363867704; // Base position longitude.
+// CONTS
+var sensorNameDevice = "BH - Venda Nova - 01";
+var stateDeviceEnum = Object.freeze({ "Off": "off", "On": "on", "Failed": "failed" });
+var waterLevelEnum = Object.freeze({ "Dry": "dry", "Level1": "level1", "Level2": "level2" });
+const thresholdNormal = "dry"; 
+const thresholdWarning = "level1"; 
+const thresholdCritical = "leve22";
+var humidityDevice = 0
+var temperatureDevice = 0
+var baseLat = -19.970256578641237; // Base position latitude. 
+var baseLon = -44.01700026331516; // Base position longitude. 
 var currentLat = baseLat; // Current position latitude. 
 var currentLon = baseLon; // Current position longitude. 
-var state = estadoDispositivoEnum.Ligado;  // Estado inicial do sensor
-var nivelAlagamento = alagamentoEnum.Seco; // Nivel do alagamento inicial do Sensor 
-var timeInterval = 100000;
+var state = stateDeviceEnum.On;  // init State
+var waterLevelDevice = waterLevelEnum.Dry; // Nivel do alagamento inicial do Sensor 
+var timeInterval = 5000; // time interval to send data to Iot Central
 const noEvent = "none";
 var eventText = noEvent; // Text to send to the IoT operator. 
 
 
-
-function ligarDevice(request, response) {
-	
-	console.log(request);
-	state = estadoDispositivoEnum.Ligado;  
+function turnOnDevice(request, response) {
+     // set state to on
+	state = stateDeviceEnum.On;  
 	
 	 // Acknowledge the command. 
     response.send(200, 'Success', function (errorMessage) {
 
 		// Failure
         if (errorMessage) {
-            redMessage('Failed sending a ligarDevice response:\n' + errorMessage.message);
+            redMessage('Failed sending a turnOnDevice response:\n' + errorMessage.message);
         }
     });
 
@@ -68,17 +64,16 @@ function ligarDevice(request, response) {
 }
 
 
-function desligarDevice(request, response) {
-	
-	console.log(request);
-	state = estadoDispositivoEnum.Desligado;
+function turnOffDevice(request, response) {
+    // set state to off
+	state = stateDeviceEnum.Off;
 
 	 // Acknowledge the command. 
     response.send(200, 'Success', function (errorMessage) {
 
         // Failure 
         if (errorMessage) {
-            redMessage('Failed sending a desligarDevice response:\n' + errorMessage.message);
+            redMessage('Failed sending a turnOffDevice response:\n' + errorMessage.message);
         }
     });
 
@@ -87,71 +82,83 @@ function desligarDevice(request, response) {
 
 
 function simulateWeather() {
-	// UMIDADE - RANDOM
-	// SE HORA ENTRE 00 E 08:00, CHUVA MODERADA
-	// SE HORA ENTRE 18 E 00:00, CHUVA INTENSA
+	// humidity generate by Random
+    // Temperature generae by Random
+	// Water level rises when rain...
 
-	greenMessage("Simulando clima");
+	greenMessage("Simulating Weather");
 
-    umidade = Math.floor(Math.random() * 90 + 10)
+    humidityDevice = Math.floor(Math.random() * 90 + 10)
+    temperatureDevice = simulateTemperature()
 
     // Simula chuva com alagamento de acordo com a hora do dia.
 
-    var horas = new Date().getHours();
+    var hoursNow = new Date().getHours();
 
-    if (horas > 0 && horas <=8) {
-        nivelAlagamento = alagamentoEnum.Nivel1;
-    } else if ( horas >= 18 && horas <=23 ) {
-        nivelAlagamento = alagamentoEnum.Nivel2;
-        eventText = "Alagamento detectado no sensor";
+    if (hoursNow > 0 && hoursNow <=8  && temperatureDevice > 20  && humidityDevice > 70) {
+        waterLevelDevice = waterLevelEnum.Level1;
+    } else if ( hoursNow >= 18 && hoursNow <=23 && temperatureDevice > 15 ) {
+        waterLevelDevice = waterLevelEnum.Level2;
+        eventText = "Detect water";
     }
 
 	return;
 }
 
+function simulateTemperature() {
 
-//////////////////////// ENVIA DADOS E EVENTOS ////////////////////////
+    let tempNumberRandom = Math.random();
+    return tempNumberRandom > 0.3 ?  Math.floor(tempNumberRandom * 50) :  Math.floor(tempNumberRandom * -30);
+
+}
+
+//////////////////////// SEND DATA AND EVENT ////////////////////////
 
 function sendSensorTelemetry() {
+    
+    // Send telemetry only when device is on.
 
-    // Simular clima. 
-    simulateWeather();
+    if (state == stateDeviceEnum.On) {
+        // Similute Weather. 
+        simulateWeather();
 
-    // Create the telemetry data JSON package. 
-    var data = JSON.stringify(
-        {
-            EstadoDoDispositivo: state,
-            Umidade: umidade,
-            NivelDeAlagamento: nivelAlagamento,
-        });
-
-    // Add the eventText event string, if there is one. 
-    if (eventText != noEvent) {
-        data += JSON.stringify(
+        // Create the telemetry data JSON package. 
+        var data = JSON.stringify(
             {
-                Evento: eventText,
-            }
-        );
-        eventText = noEvent;
-    }
+                State: state,
+                Humidity: humidityDevice,
+                WaterLevel: waterLevelDevice,
+                Temperature: temperatureDevice
+            });
 
-    // Create the message by using the preceding defined data. 
-    var message = new Message(data);
-    console.log("Message: " + data);
-
-    // Send the message. 
-    hubClient.sendEvent(message, function (errorMessage) {
-        // Error 
-        if (errorMessage) {
-            redMessage("Failed to send message to Azure IoT Central: ${err.toString()}");
-        } else {
-            greenMessage("Telemetry sent");
+        // Add the eventText event string, if there is one. 
+        if (eventText != noEvent) {
+            data += JSON.stringify(
+                {
+                    Evento: eventText,
+                }
+            );
+            eventText = noEvent;
         }
-    });
+
+        // Create the message IOT by using the preceding defined data. 
+        var message = new Message(data);
+        console.log("Message: " + data);
+
+        // Send the message. 
+        hubClient.sendEvent(message, function (errorMessage) {
+            // Error 
+            if (errorMessage) {
+                redMessage("Failed to send message to Azure IoT Central: ${err.toString()}");
+            } else {
+                greenMessage("Telemetry sent");
+            }
+        });
+    }
 }
 
 
-/////////////// ENRADAS DE PROPRIEDADES
+/////////////// Send Properties
 
 // Send device twin reported properties. 
 function sendDeviceProperties(twin, properties) {
@@ -161,7 +168,7 @@ function sendDeviceProperties(twin, properties) {
 
 
 ////// Handle device connection to Azure IoT Central. 
-// Handle device connection to Azure IoT Central. 
+// connectCallback send properties and call setInteval to send telemetry.
 var connectCallback = (err) => {
     if (err) {
         redMessage(`Device could not connect to Azure IoT Central: ${err.toString()}`);
@@ -181,9 +188,8 @@ var connectCallback = (err) => {
                 var properties =
                 {
                     // Format: 
-                    // <Property Name in Azure IoT Central> ":" <value in Node.js app> 
-                    NomeSensor: nomeSensor,
-					Localizao: {
+                    sensorName: sensorNameDevice,
+					Location: {
 							// Names must be lon, lat. 
 							lon: currentLon,
 							lat: currentLat
@@ -191,8 +197,8 @@ var connectCallback = (err) => {
                 };
 				
                 sendDeviceProperties(twin, properties);
-                hubClient.onDeviceMethod('Desligar', desligarDevice);
-                hubClient.onDeviceMethod('Ligar', ligarDevice);
+                hubClient.onDeviceMethod('TurnOff', turnOffDevice);
+                hubClient.onDeviceMethod('TurnOn', turnOnDevice);
 				
             }
         });

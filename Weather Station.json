@@ -1,0 +1,178 @@
+[
+  {
+    "@id": "dtmi:smartcitydemo:WeatherStation2tt;1",
+    "@type": "Interface",
+    "contents": [
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:Humidity;1",
+        "@type": [
+          "Telemetry",
+          "Humidity"
+        ],
+        "displayName": {
+          "en": "Humidity"
+        },
+        "name": "Humidity",
+        "schema": "double",
+        "unit": "percent"
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:Temperature;1",
+        "@type": [
+          "Telemetry",
+          "Temperature"
+        ],
+        "displayName": {
+          "en": "Temperature"
+        },
+        "name": "Temperature",
+        "schema": "double",
+        "unit": "degreeCelsius"
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:WaterLevel;1",
+        "@type": [
+          "Telemetry",
+          "State"
+        ],
+        "displayName": {
+          "en": "Water Level"
+        },
+        "name": "WaterLevel",
+        "schema": {
+          "@id": "dtmi:smartcitydemo:WeatherStation2tt:WaterLevel:schema;1",
+          "@type": "Enum",
+          "enumValues": [
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:WaterLevel:schema:Dry;1",
+              "displayName": {
+                "en": "Dry"
+              },
+              "enumValue": "dry",
+              "name": "Dry"
+            },
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:WaterLevel:schema:level1;1",
+              "displayName": {
+                "en": "level 1"
+              },
+              "enumValue": "level1",
+              "name": "level1"
+            },
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:WaterLevel:schema:level2;1",
+              "displayName": {
+                "en": "level2"
+              },
+              "enumValue": "level2",
+              "name": "level2"
+            }
+          ],
+          "valueSchema": "string"
+        }
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:Location;1",
+        "@type": [
+          "Property",
+          "Location"
+        ],
+        "displayName": {
+          "en": "Location"
+        },
+        "name": "Location",
+        "schema": "geopoint",
+        "writable": false
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:Event;1",
+        "@type": [
+          "Telemetry",
+          "Event"
+        ],
+        "displayName": {
+          "en": "Event"
+        },
+        "name": "Event",
+        "schema": "string"
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:TurnOn;1",
+        "@type": "Command",
+        "commandType": "synchronous",
+        "displayName": {
+          "en": "Turn on"
+        },
+        "name": "TurnOn",
+        "durable": false
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:TurnOff;1",
+        "@type": "Command",
+        "commandType": "synchronous",
+        "displayName": {
+          "en": "Turn off"
+        },
+        "name": "TurnOff",
+        "response": {
+          "@type": "CommandPayload",
+          "displayName": {
+            "en": "Device Turn off"
+          },
+          "name": "DeviceTurnOff",
+          "schema": "string"
+        },
+        "durable": false
+      },
+      {
+        "@id": "dtmi:smartcitydemo:WeatherStation2tt:State;1",
+        "@type": [
+          "Telemetry",
+          "State"
+        ],
+        "displayName": {
+          "en": "State"
+        },
+        "name": "State",
+        "schema": {
+          "@id": "dtmi:smartcitydemo:WeatherStation2tt:State:schema;1",
+          "@type": "Enum",
+          "enumValues": [
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:State:schema:On;1",
+              "displayName": {
+                "en": "On"
+              },
+              "enumValue": "on",
+              "name": "On"
+            },
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:State:schema:Off;1",
+              "displayName": {
+                "en": "Off"
+              },
+              "enumValue": "off",
+              "name": "Off"
+            },
+            {
+              "@id": "dtmi:smartcitydemo:WeatherStation2tt:State:schema:Failed;1",
+              "displayName": {
+                "en": "Failed"
+              },
+              "enumValue": "failed",
+              "name": "Failed"
+            }
+          ],
+          "valueSchema": "string"
+        }
+      }
+    ],
+    "displayName": {
+      "en": "Weather Station"
+    },
+    "@context": [
+      "dtmi:iotcentral:context;2",
+      "dtmi:dtdl:context;2"
+    ]
+  }
+]
