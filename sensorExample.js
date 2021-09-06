@@ -1,5 +1,5 @@
 "use strict";
-const chalk = require('chalk');
+const chalk = require('chalk');  // To color console log
 
 // Use the Azure IoT device SDK for devices that connect to Azure IoT Central. 
 var iotHubTransport = require('azure-iot-device-mqtt').Mqtt;
@@ -19,21 +19,12 @@ var provisioningSecurityClient = new SymmetricKeySecurityClient(registrationId, 
 var provisioningClient = ProvisioningDeviceClient.create(provisioningHost, idScope, new ProvisioningTransport(), provisioningSecurityClient);
 var hubClient;
 
+// model Device
+const stateDeviceEnum = Object.freeze({ "Off": "off", "On": "on", "Failed": "failed" });
+const waterLevelEnum = Object.freeze({ "Dry": "dry", "Level1": "level1", "Level2": "level2" });
 
-function greenMessage(text) {
-    console.log(chalk.green(text) + "\n");
-}
-function redMessage(text) {
-    console.log(chalk.red(text) + "\n");
-}
-
-// CONTS
+// GLOBAL PARAMETERS
 var sensorNameDevice = "BH - Venda Nova - 01";
-var stateDeviceEnum = Object.freeze({ "Off": "off", "On": "on", "Failed": "failed" });
-var waterLevelEnum = Object.freeze({ "Dry": "dry", "Level1": "level1", "Level2": "level2" });
-const thresholdNormal = "dry"; 
-const thresholdWarning = "level1"; 
-const thresholdCritical = "leve22";
 var humidityDevice = 0
 var temperatureDevice = 0
 var baseLat = -19.970256578641237; // Base position latitude. 
@@ -47,8 +38,17 @@ const noEvent = "none";
 var eventText = noEvent; // Text to send to the IoT operator. 
 
 
+//To color console log
+function greenMessage(text) {
+    console.log(chalk.green(text) + "\n");
+}
+function redMessage(text) {
+    console.log(chalk.red(text) + "\n");
+}
+
+
 function turnOnDevice(request, response) {
-     // set state to on
+    // set state to on
 	state = stateDeviceEnum.On;  
 	
 	 // Acknowledge the command. 
@@ -162,14 +162,13 @@ function sendData(data){
     });
 }
 
-//////////////////////// SEND DATA AND EVENT ////////////////////////
 
 function sendSensorTelemetry() {
     
     // Send telemetry only when device is on.
 
     if (state == stateDeviceEnum.On) {
-        // Similute Weather. 
+        // Similute Weather. Here you can call function that collects Raspberry data.
         simulateWeather();
 
         // Create the telemetry data JSON package. 
@@ -193,7 +192,6 @@ function sendSensorTelemetry() {
 
 
 /////////////// Send Properties
-
 // Send device twin reported properties. 
 function sendDeviceProperties(twin, properties) {
     twin.properties.reported.update(properties, (err) => greenMessage(`Sent device properties: ${JSON.stringify(properties)}; ` +
