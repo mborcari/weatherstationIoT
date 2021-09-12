@@ -11,19 +11,19 @@ var ProvisioningDeviceClient = require('azure-iot-provisioning-device').Provisio
 var provisioningHost = 'global.azure-devices-provisioning.net';
 
 // Enter your Azure IoT keys
-var idScope = '0ne003A1238';
-var registrationId = 'sensor01';
-var symmetricKey = '0PSRImHIN+YfqSmVJZ2beC+w39eNrG9j2u424HzPRwY=';
+var idScope = '<ID_ESCOPE>';
+var registrationId = '<ID>';
+var symmetricKey = '<PRIMARYKEY>';
 
 var provisioningSecurityClient = new SymmetricKeySecurityClient(registrationId, symmetricKey);
 var provisioningClient = ProvisioningDeviceClient.create(provisioningHost, idScope, new ProvisioningTransport(), provisioningSecurityClient);
 var hubClient;
 
-// model Device
+// Enum values Device
 const stateDeviceEnum = Object.freeze({ "Off": "off", "On": "on", "Failed": "failed" });
 const waterLevelEnum = Object.freeze({ "Dry": "dry", "Level1": "level1", "Level2": "level2" });
 
-// GLOBAL PARAMETERS
+// Global Parameters
 var sensorNameDevice = "BH - Venda Nova - 01";
 var humidityDevice = 0
 var temperatureDevice = 0
@@ -33,7 +33,7 @@ var currentLat = baseLat; // Current position latitude.
 var currentLon = baseLon; // Current position longitude. 
 var state = stateDeviceEnum.On;  // init State
 var waterLevelDevice = waterLevelEnum.Dry; // Nivel do alagamento inicial do Sensor 
-var timeInterval = 5000; // time interval to send data to Iot Central
+var timeInterval = 10000; // time interval to send data to Iot Central
 const noEvent = "none";
 var eventText = noEvent; // Text to send to the IoT operator. 
 
